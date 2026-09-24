@@ -17,7 +17,7 @@ const hourLabel = (h: number) => `${h % 12 === 0 ? 12 : h % 12} ${h < 12 ? 'AM' 
 function platformFromLink(link: string): Platform | null {
   const l = link.toLowerCase()
   if (l.includes('prairielearn')) return 'PrairieLearn'
-  if (l.includes('gradescope')) return 'Gradescope'
+  if (l.includes('cs173')) return 'CS173.tech'
   if (l.includes('smartphysics')) return 'SmartPhysics'
   if (l.includes('canvas')) return 'Canvas'
   return null

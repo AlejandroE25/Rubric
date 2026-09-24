@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { store } from './data'
 import type { Assignment, CheckIn, NewAssignment, SiteKey } from './data'
+import { CHECK_SITES } from './config'
 import { localIsoDate } from './lib/dates'
 import Header from './components/Header'
 import CheckInPanel from './components/CheckInPanel'
@@ -79,7 +80,7 @@ export default function App() {
       let row = await store.updateCheckIn(before.id, { [key]: value })
       // Writing CompletedAt immediately is what halts the nags: the next tick finds it set.
       // Un-ticking a box afterwards leaves it set on purpose.
-      if (row.PL && row.GS && row.SP && !row.completedAt) {
+      if (CHECK_SITES.every((s) => row[s.key]) && !row.completedAt) {
         row = await store.updateCheckIn(row.id, { completedAt: new Date() })
         notify('Check-in done: nags off until tomorrow')
       }

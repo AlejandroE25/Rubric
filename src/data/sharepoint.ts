@@ -1,4 +1,4 @@
-import { LISTS, PLATFORMS, SITE_URL } from '../config'
+import { CHECK_SITES, LISTS, PLATFORMS, SITE_URL } from '../config'
 import type { Assignment, CheckIn, DataStore, NewAssignment, Platform, SiteKey, Status } from './types'
 
 /*
@@ -162,14 +162,8 @@ function toAssignment(row: Row): Assignment {
 }
 
 function toCheckIn(row: Row): CheckIn {
-  return {
-    id: id(row),
-    date: String(row.Title ?? ''),
-    PL: row.PL === true,
-    GS: row.GS === true,
-    SP: row.SP === true,
-    completedAt: date(row.CompletedAt),
-  }
+  const sites = Object.fromEntries(CHECK_SITES.map((s) => [s.key, row[s.key] === true])) as Record<SiteKey, boolean>
+  return { id: id(row), date: String(row.Title ?? ''), completedAt: date(row.CompletedAt), ...sites }
 }
 
 // ── Store ───────────────────────────────────────────────────────────────────
@@ -219,14 +213,15 @@ export function createSharePointStore(): DataStore {
       const [existing] = await readFiltered(checkIns, `Title eq '${day}'`, (r) => r.Title === day)
       if (existing) return toCheckIn(existing)
       // CheckDate is a date-only column: send the calendar day, not an instant.
-      const row = await checkIns.create({ Title: day, CheckDate: day, PL: false, GS: false, SP: false })
+      const unticked = Object.fromEntries(CHECK_SITES.map((s) => [s.key, false]))
+      const row = await checkIns.create({ Title: day, CheckDate: day, ...unticked })
       return toCheckIn(row)
     },
 
     async updateCheckIn(itemId, patch) {
       const { checkIns } = await lists()
       const changes: Row = {}
-      for (const k of ['PL', 'GS', 'SP'] as SiteKey[]) if (k in patch) changes[k] = patch[k]
+      for (const { key } of CHECK_SITES) if (key in patch) changes[key] = patch[key]
       if (patch.completedAt) changes.CompletedAt = patch.completedAt.toISOString()
       return toCheckIn(await checkIns.update(itemId, changes))
     },

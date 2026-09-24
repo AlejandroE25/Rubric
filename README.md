@@ -13,8 +13,8 @@ canvas app did.
 
 One screen, same as the spec: **check-in → log an assignment → open tickets**.
 
-- **Check-in.** PrairieLearn, Gradescope, SmartPhysics. Today's `CheckIns` row is created the first
-  time you open the app that day. Ticking the third box writes `CompletedAt`, which is what stops the
+- **Check-in.** PrairieLearn, CS173.tech, Canvas, SmartPhysics. Today's `CheckIns` row is created the first
+  time you open the app that day. Ticking the last box writes `CompletedAt`, which is what stops the
   nags on the next tick; un-ticking afterwards leaves it set, on purpose.
 - **Log an assignment.** Name, due date, time (defaults to 11:59 PM), link, platform. The platform is
   guessed from the link. Creating the row fires the `Intake` flow, which sends the `[HW-n]` email.
@@ -39,6 +39,19 @@ npm run dev
 Until SharePoint is connected the app runs on **mock data** (sample tickets, saved in the browser's
 localStorage) and shows a `mock data` badge. The dev server prints
 `Error loading power.config.json` until you run `pa app init` below — that's expected.
+
+## SharePoint list changes from the original spec
+
+Rubric tracks four services — **PL** PrairieLearn, **CS** CS173.tech, **CV** Canvas, **SP**
+SmartPhysics — where the spec had PrairieLearn, Gradescope and SmartPhysics. On the site:
+
+- **`CheckIns`**: add Yes/No columns `CS` and `CV` (default No). Create each with that exact name
+  first so the internal name matches. `GS` is no longer used; delete it or leave it.
+- **`Assignments.Platform`**: set the choices to `PrairieLearn`, `CS173.tech`, `Canvas`,
+  `SmartPhysics`, `Other`.
+
+The flows need no logic changes: the Tick flow only reads `CheckIns.CompletedAt`, which the app sets
+once all four are ticked. Update the site names in the check-in nag email's body text if you list them there.
 
 ## Connect it to Power Platform
 
@@ -109,7 +122,7 @@ the likely first-run snags, all confined to [`src/data/sharepoint.ts`](src/data/
   PatchItem`. If the CLI generated something named differently, `grep "async " src/generated/services/*.ts`
   shows what exists, and the lookup in `buildClients()` is the one place to adjust.
 - **Column errors** mean an internal column name differs from the spec (`DueAt`, `Link`, `Platform`,
-  `Status`, `CompletedAt`, `CheckDate`, `PL`, `GS`, `SP`, `Value`). The generated model files in
+  `Status`, `CompletedAt`, `CheckDate`, `PL`, `CS`, `CV`, `SP`, `Value`). The generated model files in
   `src/generated/models/` list the real names.
 
 ## Layout

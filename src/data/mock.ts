@@ -1,10 +1,11 @@
 import type { Assignment, CheckIn, DataStore, NewAssignment } from './types'
+import { CHECK_SITES } from '../config'
 import { localStamp } from '../lib/dates'
 
 // In-browser stand-in for the three SharePoint lists, persisted to localStorage so the
 // screen can be exercised end to end without a Power Platform environment.
 
-const KEY = 'rubric.mock.v1'
+const KEY = 'rubric.mock.v2'
 
 interface Db {
   nextId: number
@@ -27,7 +28,7 @@ function seed(): Db {
       { id: 41, title: 'MATH 241 Quiz 6 corrections', dueAt: at(-1, 23, 59), link: 'https://us.prairielearn.com', platform: 'PrairieLearn', status: 'To Do', completedAt: null },
       { id: 42, title: 'PHYS 211 Unit 7 Prelecture', dueAt: hoursFromNow(5), link: 'https://www.smartphysics.com', platform: 'SmartPhysics', status: 'To Do', completedAt: null },
       { id: 43, title: 'MATH 241 HW 7', dueAt: at(1, 23, 59), link: 'https://us.prairielearn.com', platform: 'PrairieLearn', status: 'To Do', completedAt: null },
-      { id: 44, title: 'CS 225 MP Lists', dueAt: at(3, 23, 59), link: 'https://www.gradescope.com', platform: 'Gradescope', status: 'To Do', completedAt: null },
+      { id: 44, title: 'CS 173 Homework 5', dueAt: at(3, 23, 59), link: 'https://cs173.tech', platform: 'CS173.tech', status: 'To Do', completedAt: null },
       { id: 45, title: 'RHET 105 Draft 2', dueAt: at(6, 9, 0), link: 'https://canvas.illinois.edu', platform: 'Canvas', status: 'To Do', completedAt: null },
     ],
     checkIns: [],
@@ -99,7 +100,8 @@ export function createMockStore(): DataStore {
       let row = db.checkIns.find((c) => c.date === date)
       if (!row) {
         // CheckIns is its own list, so its IDs don't consume ticket numbers.
-        row = { id: db.checkIns.length + 1, date, PL: false, GS: false, SP: false, completedAt: null }
+        const unticked = Object.fromEntries(CHECK_SITES.map((s) => [s.key, false])) as Record<(typeof CHECK_SITES)[number]['key'], boolean>
+        row = { id: db.checkIns.length + 1, date, completedAt: null, ...unticked }
         db.checkIns.push(row)
         commit()
       }

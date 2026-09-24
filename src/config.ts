@@ -9,12 +9,15 @@ export const LISTS = {
 } as const
 
 // Choice values on Assignments.Platform, in the order the form offers them.
-export const PLATFORMS = ['PrairieLearn', 'Gradescope', 'SmartPhysics', 'Canvas', 'Other'] as const
+export const PLATFORMS = ['PrairieLearn', 'CS173.tech', 'Canvas', 'SmartPhysics', 'Other'] as const
 
-// The weekday check-in: one Yes/No column per site on the CheckIns list.
+// The weekday check-in: one Yes/No column per site on the CheckIns list, keyed by the
+// column's internal name. The check-in is complete when every one is ticked. Adding a site
+// is one entry here plus one Yes/No column on the list.
 export const CHECK_SITES = [
   { key: 'PL', label: 'PrairieLearn' },
-  { key: 'GS', label: 'Gradescope' },
+  { key: 'CS', label: 'CS173.tech' },
+  { key: 'CV', label: 'Canvas' },
   { key: 'SP', label: 'SmartPhysics' },
 ] as const
 

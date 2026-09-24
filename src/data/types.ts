@@ -23,14 +23,11 @@ export interface NewAssignment {
 }
 
 /** One row of the CheckIns list. Title is the local ISO date, e.g. 2026-09-18. */
-export interface CheckIn {
+export type CheckIn = {
   id: number
   date: string
-  PL: boolean
-  GS: boolean
-  SP: boolean
   completedAt: Date | null
-}
+} & Record<SiteKey, boolean>
 
 /**
  * Everything the screen needs. Two implementations: SharePoint (via the code app's generated
