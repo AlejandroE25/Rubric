@@ -3,6 +3,10 @@
 The homework tracker's front end, rebuilt as a **Power Apps code app**: plain React + TypeScript
 instead of the drag-and-drop canvas builder, styled in the iKB design language.
 
+> **Can't publish code apps?** The UIUC Default environment blocks them
+> (`CodeAppOperationNotAllowedInEnvironment`). [`canvas/`](canvas/) has the same screen for the
+> canvas builder instead: iKB-styled, written as YAML you paste into Studio.
+
 It replaces only the canvas app from the
 [Homework Ticketing & Nag System spec](https://github.com/AlejandroE25/Portfolio/tree/main/docs/homework-ticketing).
 The three SharePoint lists (`Assignments`, `CheckIns`, `Runtime`), the `Intake` and `Tick` flows, the

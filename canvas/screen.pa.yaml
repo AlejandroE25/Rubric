@@ -1,0 +1,586 @@
+- conRubric:
+    Control: GroupContainer@1.3.0
+    Variant: AutoLayout
+    Properties:
+      X: =0
+      Y: =0
+      Width: =Parent.Width
+      Height: =Parent.Height
+      Fill: =ikbBg
+      BorderThickness: =0
+      DropShadow: =DropShadow.None
+      LayoutDirection: =LayoutDirection.Vertical
+      LayoutJustifyContent: =LayoutJustifyContent.Start
+      LayoutAlignItems: =LayoutAlignItems.Center
+      LayoutGap: =8
+      LayoutOverflowY: =LayoutOverflow.Scroll
+      PaddingBottom: =24
+    Children:
+    - htmHeader:
+        Control: HtmlViewer@2.1.0
+        Properties:
+          HtmlText: |-
+            =With(
+                { t: IfError(DateTimeValue(gTick), Blank()) },
+                With(
+                    { mins: If(IsBlank(t), -1, DateDiff(t, Now(), TimeUnit.Minutes)) },
+                    "<div style='font-family:Arial;padding:9px 2px 8px;border-bottom:2px solid #555;'>" &
+                    "<span style='color:#7aaee8;font-size:17px;font-weight:bold;font-style:italic;'>Rubric</span>" &
+                    "<span style='float:right;padding-top:4px;font-size:11px;" &
+                        If(mins < 0 || mins > 45, "color:#e0a060;font-weight:bold;'>", "color:#777777;'>") &
+                        "Last tick: " &
+                        If(mins < 0, "never, flow may be off",
+                           mins < 1, "just now",
+                           mins < 60, mins & "m ago",
+                           Text(t, "ddd m/d h:mm AM/PM")) &
+                        If(mins > 45, ", flow may be off", "") &
+                    "</span></div>"
+                )
+            )
+          AutoHeight: =false
+          Font: =Font.Arial
+          Size: =10
+          Color: =ikbText
+          PaddingTop: =0
+          PaddingBottom: =0
+          PaddingLeft: =0
+          PaddingRight: =0
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =44
+    - htmCheckInHead:
+        Control: HtmlViewer@2.1.0
+        Properties:
+          HtmlText: ="<div style='background:#3c5070;color:#ffffff;font-family:Arial;font-weight:bold;font-size:12px;padding:5px 10px;'>" & "Check-in · " & Text(gToday, "dddd m/d") & "</div>"
+          AutoHeight: =false
+          Font: =Font.Arial
+          Size: =10
+          Color: =ikbText
+          PaddingTop: =0
+          PaddingBottom: =0
+          PaddingLeft: =0
+          PaddingRight: =0
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =26
+    - conSites:
+        Control: GroupContainer@1.3.0
+        Variant: AutoLayout
+        Properties:
+          LayoutDirection: =LayoutDirection.Horizontal
+          LayoutWrap: =true
+          LayoutGap: =8
+          LayoutAlignItems: =LayoutAlignItems.Stretch
+          Fill: =RGBA(0, 0, 0, 0)
+          BorderThickness: =0
+          DropShadow: =DropShadow.None
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =If(Self.Width < 640, 88, 40)
+        Children:
+        - btnPL:
+            Control: Classic/Button@2.2.0
+            Properties:
+              Text: If(gCheckIn.PL, "✓  PrairieLearn", "PrairieLearn")
+              OnSelect: |-
+                =Set(gCheckIn, Patch(CheckIns, gCheckIn, { PL: !gCheckIn.PL }));
+                If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
+                    Set(gCheckIn, Patch(CheckIns, gCheckIn, { CompletedAt: Now() }));
+                    Notify("Check-in done: nags off until tomorrow", NotificationType.Success)
+                )
+              Font: =Font.Arial
+              Size: =11
+              FontWeight: =FontWeight.Normal
+              Fill: =If(gCheckIn.PL, ikbGreenFill, ikbInput)
+              Color: =If(gCheckIn.PL, ikbGreen, ikbText)
+              BorderColor: =If(gCheckIn.PL, ikbGreenLine, ikbBorder)
+              BorderStyle: =BorderStyle.Solid
+              BorderThickness: =1
+              HoverFill: =If(gCheckIn.PL, ikbGreenFill, ikbSurface)
+              HoverColor: =If(gCheckIn.PL, ikbGreen, ikbText)
+              HoverBorderColor: =ikbAccent
+              PressedFill: =ikbGreenFill
+              PressedColor: =ikbGreen
+              PressedBorderColor: =ikbAccent
+              FillPortions: =1
+              LayoutMinWidth: =150
+              Height: =40
+              RadiusTopLeft: =0
+              RadiusTopRight: =0
+              RadiusBottomLeft: =0
+              RadiusBottomRight: =0
+        - btnCS:
+            Control: Classic/Button@2.2.0
+            Properties:
+              Text: If(gCheckIn.CS, "✓  CS173.tech", "CS173.tech")
+              OnSelect: |-
+                =Set(gCheckIn, Patch(CheckIns, gCheckIn, { CS: !gCheckIn.CS }));
+                If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
+                    Set(gCheckIn, Patch(CheckIns, gCheckIn, { CompletedAt: Now() }));
+                    Notify("Check-in done: nags off until tomorrow", NotificationType.Success)
+                )
+              Font: =Font.Arial
+              Size: =11
+              FontWeight: =FontWeight.Normal
+              Fill: =If(gCheckIn.CS, ikbGreenFill, ikbInput)
+              Color: =If(gCheckIn.CS, ikbGreen, ikbText)
+              BorderColor: =If(gCheckIn.CS, ikbGreenLine, ikbBorder)
+              BorderStyle: =BorderStyle.Solid
+              BorderThickness: =1
+              HoverFill: =If(gCheckIn.CS, ikbGreenFill, ikbSurface)
+              HoverColor: =If(gCheckIn.CS, ikbGreen, ikbText)
+              HoverBorderColor: =ikbAccent
+              PressedFill: =ikbGreenFill
+              PressedColor: =ikbGreen
+              PressedBorderColor: =ikbAccent
+              FillPortions: =1
+              LayoutMinWidth: =150
+              Height: =40
+              RadiusTopLeft: =0
+              RadiusTopRight: =0
+              RadiusBottomLeft: =0
+              RadiusBottomRight: =0
+        - btnCV:
+            Control: Classic/Button@2.2.0
+            Properties:
+              Text: If(gCheckIn.CV, "✓  Canvas", "Canvas")
+              OnSelect: |-
+                =Set(gCheckIn, Patch(CheckIns, gCheckIn, { CV: !gCheckIn.CV }));
+                If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
+                    Set(gCheckIn, Patch(CheckIns, gCheckIn, { CompletedAt: Now() }));
+                    Notify("Check-in done: nags off until tomorrow", NotificationType.Success)
+                )
+              Font: =Font.Arial
+              Size: =11
+              FontWeight: =FontWeight.Normal
+              Fill: =If(gCheckIn.CV, ikbGreenFill, ikbInput)
+              Color: =If(gCheckIn.CV, ikbGreen, ikbText)
+              BorderColor: =If(gCheckIn.CV, ikbGreenLine, ikbBorder)
+              BorderStyle: =BorderStyle.Solid
+              BorderThickness: =1
+              HoverFill: =If(gCheckIn.CV, ikbGreenFill, ikbSurface)
+              HoverColor: =If(gCheckIn.CV, ikbGreen, ikbText)
+              HoverBorderColor: =ikbAccent
+              PressedFill: =ikbGreenFill
+              PressedColor: =ikbGreen
+              PressedBorderColor: =ikbAccent
+              FillPortions: =1
+              LayoutMinWidth: =150
+              Height: =40
+              RadiusTopLeft: =0
+              RadiusTopRight: =0
+              RadiusBottomLeft: =0
+              RadiusBottomRight: =0
+        - btnSP:
+            Control: Classic/Button@2.2.0
+            Properties:
+              Text: If(gCheckIn.SP, "✓  SmartPhysics", "SmartPhysics")
+              OnSelect: |-
+                =Set(gCheckIn, Patch(CheckIns, gCheckIn, { SP: !gCheckIn.SP }));
+                If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
+                    Set(gCheckIn, Patch(CheckIns, gCheckIn, { CompletedAt: Now() }));
+                    Notify("Check-in done: nags off until tomorrow", NotificationType.Success)
+                )
+              Font: =Font.Arial
+              Size: =11
+              FontWeight: =FontWeight.Normal
+              Fill: =If(gCheckIn.SP, ikbGreenFill, ikbInput)
+              Color: =If(gCheckIn.SP, ikbGreen, ikbText)
+              BorderColor: =If(gCheckIn.SP, ikbGreenLine, ikbBorder)
+              BorderStyle: =BorderStyle.Solid
+              BorderThickness: =1
+              HoverFill: =If(gCheckIn.SP, ikbGreenFill, ikbSurface)
+              HoverColor: =If(gCheckIn.SP, ikbGreen, ikbText)
+              HoverBorderColor: =ikbAccent
+              PressedFill: =ikbGreenFill
+              PressedColor: =ikbGreen
+              PressedBorderColor: =ikbAccent
+              FillPortions: =1
+              LayoutMinWidth: =150
+              Height: =40
+              RadiusTopLeft: =0
+              RadiusTopRight: =0
+              RadiusBottomLeft: =0
+              RadiusBottomRight: =0
+    - htmCheckInStatus:
+        Control: HtmlViewer@2.1.0
+        Properties:
+          HtmlText: |-
+            =If(
+                !IsBlank(gCheckIn.CompletedAt),
+                "<div style='font-family:Arial;font-size:13px;color:#6ec86e;'>● Checked in at " & Text(gCheckIn.CompletedAt, "h:mm AM/PM") & "</div>",
+                With(
+                    { left: 4 - CountIf([gCheckIn.PL, gCheckIn.CS, gCheckIn.CV, gCheckIn.SP], Value = true) },
+                    "<div style='font-family:Arial;font-size:13px;color:#e08080;'>● " & left & If(left = 1, " site left", " sites left") &
+                    If(Weekday(Today(), StartOfWeek.Monday) > 5, " <span style='color:#777777;'>· weekend, no nags</span>", "") & "</div>"
+                )
+            )
+          AutoHeight: =false
+          Font: =Font.Arial
+          Size: =10
+          Color: =ikbText
+          PaddingTop: =0
+          PaddingBottom: =0
+          PaddingLeft: =0
+          PaddingRight: =0
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =22
+    - htmLogHead:
+        Control: HtmlViewer@2.1.0
+        Properties:
+          HtmlText: ="<div style='background:#3c5070;color:#ffffff;font-family:Arial;font-weight:bold;font-size:12px;padding:5px 10px;'>" & "Log an assignment" & "</div>"
+          AutoHeight: =false
+          Font: =Font.Arial
+          Size: =10
+          Color: =ikbText
+          PaddingTop: =0
+          PaddingBottom: =0
+          PaddingLeft: =0
+          PaddingRight: =0
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =26
+    - txtName:
+        Control: Classic/TextInput@2.3.2
+        Properties:
+          Default: =""
+          HintText: ="Assignment name, e.g. MATH 241 HW 8"
+          Font: =Font.Arial
+          Size: =10
+          Fill: =ikbInput
+          Color: =ikbText
+          BorderColor: =ikbRule
+          BorderStyle: =BorderStyle.Solid
+          BorderThickness: =1
+          HoverFill: =ikbInput
+          HoverBorderColor: =ikbAccent
+          RadiusTopLeft: =0
+          RadiusTopRight: =0
+          RadiusBottomLeft: =0
+          RadiusBottomRight: =0
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =32
+    - conDueRow:
+        Control: GroupContainer@1.3.0
+        Variant: AutoLayout
+        Properties:
+          LayoutDirection: =LayoutDirection.Horizontal
+          LayoutGap: =8
+          LayoutAlignItems: =LayoutAlignItems.Stretch
+          Fill: =RGBA(0, 0, 0, 0)
+          BorderThickness: =0
+          DropShadow: =DropShadow.None
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =32
+        Children:
+        - dpDueAt:
+            Control: Classic/DatePicker@2.6.0
+            Properties:
+              DefaultDate: =Today()
+              IconBackground: =ikbBtn
+              IconFill: =ikbText
+              FillPortions: =2
+              LayoutMinWidth: =120
+              Font: =Font.Arial
+              Size: =10
+              Fill: =ikbInput
+              Color: =ikbText
+              BorderColor: =ikbRule
+              BorderStyle: =BorderStyle.Solid
+              BorderThickness: =1
+        - drpHour:
+            Control: Classic/DropDown@2.3.1
+            Properties:
+              Items: =ForAll(Sequence(24, 0), Text(Value))
+              Default: ="23"
+              ChevronBackground: =ikbBtn
+              ChevronFill: =ikbText
+              SelectionFill: =ikbFill
+              SelectionColor: =RGBA(255, 255, 255, 1)
+              FillPortions: =1
+              LayoutMinWidth: =64
+              Font: =Font.Arial
+              Size: =10
+              Fill: =ikbInput
+              Color: =ikbText
+              BorderColor: =ikbRule
+              BorderStyle: =BorderStyle.Solid
+              BorderThickness: =1
+              HoverFill: =ikbInput
+              HoverBorderColor: =ikbAccent
+              RadiusTopLeft: =0
+              RadiusTopRight: =0
+              RadiusBottomLeft: =0
+              RadiusBottomRight: =0
+        - drpMin:
+            Control: Classic/DropDown@2.3.1
+            Properties:
+              Items: =["00", "15", "30", "45", "59"]
+              Default: ="59"
+              ChevronBackground: =ikbBtn
+              ChevronFill: =ikbText
+              SelectionFill: =ikbFill
+              SelectionColor: =RGBA(255, 255, 255, 1)
+              FillPortions: =1
+              LayoutMinWidth: =64
+              Font: =Font.Arial
+              Size: =10
+              Fill: =ikbInput
+              Color: =ikbText
+              BorderColor: =ikbRule
+              BorderStyle: =BorderStyle.Solid
+              BorderThickness: =1
+              HoverFill: =ikbInput
+              HoverBorderColor: =ikbAccent
+              RadiusTopLeft: =0
+              RadiusTopRight: =0
+              RadiusBottomLeft: =0
+              RadiusBottomRight: =0
+    - txtLink:
+        Control: Classic/TextInput@2.3.2
+        Properties:
+          Default: =""
+          HintText: ="Link (https://…)"
+          Font: =Font.Arial
+          Size: =10
+          Fill: =ikbInput
+          Color: =ikbText
+          BorderColor: =ikbRule
+          BorderStyle: =BorderStyle.Solid
+          BorderThickness: =1
+          HoverFill: =ikbInput
+          HoverBorderColor: =ikbAccent
+          RadiusTopLeft: =0
+          RadiusTopRight: =0
+          RadiusBottomLeft: =0
+          RadiusBottomRight: =0
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =32
+    - conPlatformRow:
+        Control: GroupContainer@1.3.0
+        Variant: AutoLayout
+        Properties:
+          LayoutDirection: =LayoutDirection.Horizontal
+          LayoutGap: =8
+          LayoutAlignItems: =LayoutAlignItems.Stretch
+          Fill: =RGBA(0, 0, 0, 0)
+          BorderThickness: =0
+          DropShadow: =DropShadow.None
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =32
+        Children:
+        - drpPlatform:
+            Control: Classic/DropDown@2.3.1
+            Properties:
+              Items: =Choices(Assignments.Platform)
+              Default: |-
+                =With({ l: Lower(txtLink.Text) },
+                    If("prairielearn" in l, "PrairieLearn",
+                       "cs173" in l, "CS173.tech",
+                       "canvas" in l, "Canvas",
+                       "smartphysics" in l, "SmartPhysics",
+                       "Other"))
+              ChevronBackground: =ikbBtn
+              ChevronFill: =ikbText
+              SelectionFill: =ikbFill
+              SelectionColor: =RGBA(255, 255, 255, 1)
+              FillPortions: =1
+              Font: =Font.Arial
+              Size: =10
+              Fill: =ikbInput
+              Color: =ikbText
+              BorderColor: =ikbRule
+              BorderStyle: =BorderStyle.Solid
+              BorderThickness: =1
+              HoverFill: =ikbInput
+              HoverBorderColor: =ikbAccent
+              RadiusTopLeft: =0
+              RadiusTopRight: =0
+              RadiusBottomLeft: =0
+              RadiusBottomRight: =0
+        - btnAdd:
+            Control: Classic/Button@2.2.0
+            Properties:
+              Text: ="Add ticket"
+              OnSelect: |-
+                =If( IsBlank(txtName.Text),
+                    Notify("Name required", NotificationType.Error),
+                    Patch(Assignments, Defaults(Assignments),
+                        { Title: txtName.Text,
+                          DueAt: DateAdd(
+                                   DateAdd(dpDueAt.SelectedDate, Value(drpHour.Selected.Value), TimeUnit.Hours),
+                                   Value(drpMin.Selected.Value), TimeUnit.Minutes),
+                          Link: txtLink.Text,
+                          Platform: { Value: drpPlatform.Selected.Value },
+                          Status: { Value: "To Do" } });
+                    Reset(txtName); Reset(txtLink); Reset(drpPlatform);
+                    Notify("Ticket created: email on its way", NotificationType.Success)
+                )
+              Font: =Font.Arial
+              Size: =10
+              FontWeight: =FontWeight.Normal
+              Fill: =ikbFill
+              Color: =RGBA(255, 255, 255, 1)
+              BorderColor: =ikbAccent
+              BorderStyle: =BorderStyle.Solid
+              BorderThickness: =1
+              HoverFill: =ColorValue("#46608a")
+              HoverColor: =RGBA(255, 255, 255, 1)
+              HoverBorderColor: =ikbAccent2
+              PressedFill: =ikbFill
+              PressedColor: =RGBA(255, 255, 255, 1)
+              PressedBorderColor: =ikbAccent2
+              FillPortions: =0
+              Width: =130
+              RadiusTopLeft: =0
+              RadiusTopRight: =0
+              RadiusBottomLeft: =0
+              RadiusBottomRight: =0
+    - htmOpenHead:
+        Control: HtmlViewer@2.1.0
+        Properties:
+          HtmlText: ="<div style='background:#3c5070;color:#ffffff;font-family:Arial;font-weight:bold;font-size:12px;padding:5px 10px;'>" & "Open tickets (" & CountRows(galOpen.AllItems) & ")" & "</div>"
+          AutoHeight: =false
+          Font: =Font.Arial
+          Size: =10
+          Color: =ikbText
+          PaddingTop: =0
+          PaddingBottom: =0
+          PaddingLeft: =0
+          PaddingRight: =0
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =26
+    - galOpen:
+        Control: Gallery@2.15.0
+        Variant: Vertical
+        Properties:
+          Items: =SortByColumns(Filter(Assignments, Status.Value = "To Do"), "DueAt", SortOrder.Ascending)
+          TemplateSize: =62
+          TemplatePadding: =0
+          ShowScrollbar: =false
+          Fill: =RGBA(0, 0, 0, 0)
+          BorderThickness: =0
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =Max(1, CountRows(Self.AllItems)) * 62
+        Children:
+        - htmTicket:
+            Control: HtmlViewer@2.1.0
+            Properties:
+              HtmlText: |-
+                =With(
+                    { h: DateDiff(Now(), ThisItem.DueAt, TimeUnit.Hours),
+                      title: Substitute(Substitute(ThisItem.Title, "&", "&amp;"), "<", "&lt;") },
+                    "<div style='font-family:Arial;background:#2a2a2a;border:1px solid #444444;border-left:3px solid " &
+                        If(h < 0, "#e08080", h < 24, "#e0a060", "#444444") & ";padding:6px 9px;height:40px;overflow:hidden;'>" &
+                    "<div style='white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>" &
+                        "<span style='color:#777777;font-size:11px;'>HW-" & ThisItem.ID & "</span>&nbsp; " &
+                        "<b style='color:#e0e0e0;font-size:13px;'>" & title & "</b></div>" &
+                    "<div style='font-size:12px;margin-top:2px;'>" &
+                        "<span style='color:" & If(h < 24, "#e08080", "#999999") & If(h < 0, ";font-weight:bold", "") & ";'>" &
+                        If(h < 0, "overdue · was " & Text(ThisItem.DueAt, "ddd m/d h:mm AM/PM"),
+                           h < 24, "due in " & h & "h · " & Text(ThisItem.DueAt, "h:mm AM/PM"),
+                           Text(ThisItem.DueAt, "ddd m/d · h:mm AM/PM")) &
+                        "</span>&nbsp; <span style='color:#777777;'>" & ThisItem.Platform.Value & "</span></div>" &
+                    "</div>"
+                )
+              AutoHeight: =false
+              X: =0
+              Y: =4
+              Width: =Parent.TemplateWidth - 148
+              Height: =56
+              PaddingTop: =0
+              PaddingBottom: =0
+              PaddingLeft: =0
+              PaddingRight: =0
+              Font: =Font.Arial
+              Color: =ikbText
+        - btnOpen:
+            Control: Classic/Button@2.2.0
+            Properties:
+              Text: ="Open ↗"
+              OnSelect: =Launch(ThisItem.Link)
+              Font: =Font.Arial
+              Size: =10
+              FontWeight: =FontWeight.Normal
+              Fill: =ikbBtn
+              Color: =ikbText
+              BorderColor: =ikbRule
+              BorderStyle: =BorderStyle.Solid
+              BorderThickness: =1
+              HoverFill: =ikbBtnHover
+              HoverColor: =ikbText
+              HoverBorderColor: =ikbAccent
+              PressedFill: =ikbInput
+              PressedColor: =ikbText
+              PressedBorderColor: =ikbAccent
+              RadiusTopLeft: =0
+              RadiusTopRight: =0
+              RadiusBottomLeft: =0
+              RadiusBottomRight: =0
+              Visible: =!IsBlank(ThisItem.Link)
+              X: =Parent.TemplateWidth - 142
+              Y: =16
+              Width: =68
+              Height: =32
+        - btnDone:
+            Control: Classic/Button@2.2.0
+            Properties:
+              Text: ="Done"
+              OnSelect: '=Patch(Assignments, ThisItem, { Status: { Value: "Done" }, CompletedAt: Now() })'
+              Font: =Font.Arial
+              Size: =10
+              FontWeight: =FontWeight.Normal
+              Fill: =ikbBtn
+              Color: =ikbText
+              BorderColor: =ikbRule
+              BorderStyle: =BorderStyle.Solid
+              BorderThickness: =1
+              HoverFill: =ikbGreenFill
+              HoverColor: =ikbGreen
+              HoverBorderColor: =ikbAccent
+              PressedFill: =ikbInput
+              PressedColor: =ikbText
+              PressedBorderColor: =ikbAccent
+              RadiusTopLeft: =0
+              RadiusTopRight: =0
+              RadiusBottomLeft: =0
+              RadiusBottomRight: =0
+              X: =Parent.TemplateWidth - 68
+              Y: =16
+              Width: =68
+              Height: =32
+    - htmEmpty:
+        Control: HtmlViewer@2.1.0
+        Properties:
+          HtmlText: ="<div style='font-family:Arial;font-size:13px;color:#999999;padding:4px 2px;'>Nothing open. Enjoy it.</div>"
+          AutoHeight: =false
+          Font: =Font.Arial
+          Size: =10
+          Color: =ikbText
+          PaddingTop: =0
+          PaddingBottom: =0
+          PaddingLeft: =0
+          PaddingRight: =0
+          Visible: =CountRows(galOpen.AllItems) = 0
+          AlignInContainer: =AlignInContainer.Center
+          FillPortions: =0
+          Width: =Min(760, Parent.Width - 24)
+          Height: =26
