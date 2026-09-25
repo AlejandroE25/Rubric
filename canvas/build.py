@@ -158,7 +158,7 @@ ALL_TICKED = " && ".join(f"gCheckIn.{k}" for k, _ in SITES)
 def site_button(key, label):
     on = f"gCheckIn.{key}"
     props = square({
-        "Text": f'If({on}, "✓  {label}", "{label}")',
+        "Text": f(f'If({on}, "✓  {label}", "{label}")'),
         "OnSelect": f(f'''
 Set(gCheckIn, Patch(CheckIns, gCheckIn, {{ {key}: !{on} }}));
 If({ALL_TICKED} && IsBlank(gCheckIn.CompletedAt),
@@ -456,6 +456,19 @@ def literal_multiline(dumper, s):
 
 
 yaml.add_representer(str, literal_multiline)
+
+def check(nodes, path=""):
+    """Every property must be a Power Fx formula, i.e. start with '='. Studio rejects the
+    whole paste otherwise (PA1001 "Power Fx expressions must start with '='")."""
+    for node in nodes:
+        for name, body in node.items():
+            for prop, value in body["Properties"].items():
+                if not (isinstance(value, str) and value.startswith("=")):
+                    raise SystemExit(f"{path}{name}.{prop} is not a formula: {value!r}")
+            check(body.get("Children", []), f"{path}{name}/")
+
+
+check([ROOT])
 
 # No leading comment: Studio's paste expects the text to start at the first control.
 OUT.write_text(yaml.dump([ROOT], sort_keys=False, allow_unicode=True, width=1000))

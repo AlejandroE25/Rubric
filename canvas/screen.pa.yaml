@@ -84,7 +84,7 @@
         - btnPL:
             Control: Classic/Button@2.2.0
             Properties:
-              Text: If(gCheckIn.PL, "✓  PrairieLearn", "PrairieLearn")
+              Text: =If(gCheckIn.PL, "✓  PrairieLearn", "PrairieLearn")
               OnSelect: |-
                 =Set(gCheckIn, Patch(CheckIns, gCheckIn, { PL: !gCheckIn.PL }));
                 If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
@@ -115,7 +115,7 @@
         - btnCS:
             Control: Classic/Button@2.2.0
             Properties:
-              Text: If(gCheckIn.CS, "✓  CS173.tech", "CS173.tech")
+              Text: =If(gCheckIn.CS, "✓  CS173.tech", "CS173.tech")
               OnSelect: |-
                 =Set(gCheckIn, Patch(CheckIns, gCheckIn, { CS: !gCheckIn.CS }));
                 If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
@@ -146,7 +146,7 @@
         - btnCV:
             Control: Classic/Button@2.2.0
             Properties:
-              Text: If(gCheckIn.CV, "✓  Canvas", "Canvas")
+              Text: =If(gCheckIn.CV, "✓  Canvas", "Canvas")
               OnSelect: |-
                 =Set(gCheckIn, Patch(CheckIns, gCheckIn, { CV: !gCheckIn.CV }));
                 If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
@@ -177,7 +177,7 @@
         - btnSP:
             Control: Classic/Button@2.2.0
             Properties:
-              Text: If(gCheckIn.SP, "✓  SmartPhysics", "SmartPhysics")
+              Text: =If(gCheckIn.SP, "✓  SmartPhysics", "SmartPhysics")
               OnSelect: |-
                 =Set(gCheckIn, Patch(CheckIns, gCheckIn, { SP: !gCheckIn.SP }));
                 If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
