@@ -35,7 +35,8 @@ Yes/No columns (see the main README).
    into `OnVisible`.
 4. **The controls.** Copy the whole of `screen.pa.yaml`, right-click the screen in the Tree view
    and choose **Paste code** (or select the screen and press Ctrl+V).
-5. **Try it.** Run the app (or re-trigger OnVisible) so `gCheckIn` and `gTick` are set.
+5. **Try it.** Run the app. OnVisible is optional: the date and heartbeat are read live, and the
+   check-in buttons load today's row themselves if it hasn't run.
 
 ## If the paste is rejected
 
