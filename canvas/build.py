@@ -130,22 +130,33 @@ def panel_head(name, text):
 
 # ── Header ──────────────────────────────────────────────────────────────────
 
+# The Tick flow writes LastTick as local "yyyy-MM-ddTHH:mm:ss". It's parsed by position rather
+# than DateTimeValue, which depends on the app's locale (a day-first locale misreads it). If
+# the value is there but unreadable, the raw text is shown rather than "never".
 HEADER = html("htmHeader", '''
 With(
-    { t: IfError(DateTimeValue(LookUp(Runtime, Title = "LastTick").Value), Blank()) },
+    { raw: Trim(LookUp(Runtime, Title = "LastTick").Value) },
     With(
-        { mins: If(IsBlank(t), -1, DateDiff(t, Now(), TimeUnit.Minutes)) },
-        "<div style='font-family:Arial;padding:9px 2px 8px;border-bottom:2px solid #555;'>" &
-        "<span style='color:#7aaee8;font-size:17px;font-weight:bold;font-style:italic;'>Rubric</span>" &
-        "<span style='float:right;padding-top:4px;font-size:11px;" &
-            If(mins < 0 || mins > 45, "color:#e0a060;font-weight:bold;'>", "color:#777777;'>") &
-            "Last tick: " &
-            If(mins < 0, "never, flow may be off",
-               mins < 1, "just now",
-               mins < 60, mins & "m ago",
-               Text(t, "ddd m/d h:mm AM/PM")) &
-            If(mins > 45, ", flow may be off", "") &
-        "</span></div>"
+        { t: If(IsMatch(raw, "\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}.*"),
+                DateTime(Value(Left(raw, 4)), Value(Mid(raw, 6, 2)), Value(Mid(raw, 9, 2)),
+                         Value(Mid(raw, 12, 2)), Value(Mid(raw, 15, 2)),
+                         If(Len(raw) >= 19, Value(Mid(raw, 18, 2)), 0)),
+                Blank()) },
+        With(
+            { mins: If(IsBlank(t), Blank(), DateDiff(t, Now(), TimeUnit.Minutes)) },
+            "<div style='font-family:Arial;padding:9px 2px 8px;border-bottom:2px solid #555;'>" &
+            "<span style='color:#7aaee8;font-size:17px;font-weight:bold;font-style:italic;'>Rubric</span>" &
+            "<span style='float:right;padding-top:4px;font-size:11px;" &
+                If(IsBlank(raw) || mins > 45, "color:#e0a060;font-weight:bold;'>", "color:#777777;'>") &
+                "Last tick: " &
+                If(IsBlank(raw), "never, flow may be off",
+                   IsBlank(t), raw,
+                   mins < 1, "just now",
+                   mins < 60, mins & "m ago",
+                   Text(t, "ddd m/d h:mm AM/PM")) &
+                If(mins > 45, ", flow may be off", "") &
+            "</span></div>"
+        )
     )
 )
 ''', 44)
