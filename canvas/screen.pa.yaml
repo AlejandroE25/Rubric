@@ -1,5 +1,5 @@
 - conRubric:
-    Control: GroupContainer@1.3.0
+    Control: GroupContainer@1.5.0
     Variant: AutoLayout
     Properties:
       X: =0
@@ -66,7 +66,7 @@
           Width: =Min(760, Parent.Width - 24)
           Height: =26
     - conSites:
-        Control: GroupContainer@1.3.0
+        Control: GroupContainer@1.5.0
         Variant: AutoLayout
         Properties:
           LayoutDirection: =LayoutDirection.Horizontal
@@ -269,7 +269,7 @@
           Width: =Min(760, Parent.Width - 24)
           Height: =32
     - conDueRow:
-        Control: GroupContainer@1.3.0
+        Control: GroupContainer@1.5.0
         Variant: AutoLayout
         Properties:
           LayoutDirection: =LayoutDirection.Horizontal
@@ -318,10 +318,6 @@
               BorderThickness: =1
               HoverFill: =ikbInput
               HoverBorderColor: =ikbAccent
-              RadiusTopLeft: =0
-              RadiusTopRight: =0
-              RadiusBottomLeft: =0
-              RadiusBottomRight: =0
         - drpMin:
             Control: Classic/DropDown@2.3.1
             Properties:
@@ -342,10 +338,6 @@
               BorderThickness: =1
               HoverFill: =ikbInput
               HoverBorderColor: =ikbAccent
-              RadiusTopLeft: =0
-              RadiusTopRight: =0
-              RadiusBottomLeft: =0
-              RadiusBottomRight: =0
     - txtLink:
         Control: Classic/TextInput@2.3.2
         Properties:
@@ -369,7 +361,7 @@
           Width: =Min(760, Parent.Width - 24)
           Height: =32
     - conPlatformRow:
-        Control: GroupContainer@1.3.0
+        Control: GroupContainer@1.5.0
         Variant: AutoLayout
         Properties:
           LayoutDirection: =LayoutDirection.Horizontal
@@ -408,10 +400,6 @@
               BorderThickness: =1
               HoverFill: =ikbInput
               HoverBorderColor: =ikbAccent
-              RadiusTopLeft: =0
-              RadiusTopRight: =0
-              RadiusBottomLeft: =0
-              RadiusBottomRight: =0
         - btnAdd:
             Control: Classic/Button@2.2.0
             Properties:

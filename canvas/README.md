@@ -39,15 +39,16 @@ Yes/No columns (see the main README).
 
 ## If the paste is rejected
 
-Only `Classic/Button@2.2.0` is confirmed from your Studio; the other control versions in
-`build.py` are best guesses. If Studio names a control or version it doesn't accept, insert one
+Studio has accepted every control type here (containers are `GroupContainer@1.5.0`; the classic
+drop down has no corner-radius properties, so it keeps Studio's default corners). The versions
+below are what `build.py` uses. If Studio names a control or version it doesn't accept, insert one
 of that control on any screen, right-click it → **Copy code**, and put its `Control:` line
 (and `Variant:`, for the gallery and containers) into the `V` table at the top of `build.py`.
 The ones most likely to need it:
 
 | Key in `build.py` | Control | Guessed as |
 |---|---|---|
-| `container` | Vertical/horizontal container | `GroupContainer@1.3.0`, `Variant: AutoLayout` |
+| `container` | Vertical/horizontal container | `GroupContainer@1.5.0`, `Variant: AutoLayout` |
 | `html` | HTML text | `HtmlViewer@2.1.0` |
 | `gallery` | Blank vertical gallery | `Gallery@2.15.0`, `Variant: Vertical` |
 | `text` | Text input (classic) | `Classic/TextInput@2.3.2` |

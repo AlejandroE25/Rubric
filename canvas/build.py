@@ -16,7 +16,7 @@ OUT = Path(__file__).with_name("screen.pa.yaml")
 # best guesses. If Studio rejects one, insert that control, right-click it → Copy code, and
 # replace the version here.
 V = {
-    "container": "GroupContainer@1.3.0",
+    "container": "GroupContainer@1.5.0",
     "html": "HtmlViewer@2.1.0",
     "button": "Classic/Button@2.2.0",
     "text": "Classic/TextInput@2.3.2",
@@ -241,7 +241,7 @@ DUE_ROW = ctrl(
             "LayoutMinWidth": "=120",
         }, hover=False)),
         # Hours 0–23 as text so the existing Patch's Value(drpHour.Selected.Value) still works.
-        ctrl("drpHour", V["dropdown"], square(field_style({
+        ctrl("drpHour", V["dropdown"], field_style({
             "Items": '=ForAll(Sequence(24, 0), Text(Value))',
             "Default": '="23"',
             "ChevronBackground": "=ikbBtn",
@@ -250,8 +250,8 @@ DUE_ROW = ctrl(
             "SelectionColor": "=RGBA(255, 255, 255, 1)",
             "FillPortions": "=1",
             "LayoutMinWidth": "=64",
-        }))),
-        ctrl("drpMin", V["dropdown"], square(field_style({
+        })),
+        ctrl("drpMin", V["dropdown"], field_style({
             "Items": '=["00", "15", "30", "45", "59"]',
             "Default": '="59"',
             "ChevronBackground": "=ikbBtn",
@@ -260,7 +260,7 @@ DUE_ROW = ctrl(
             "SelectionColor": "=RGBA(255, 255, 255, 1)",
             "FillPortions": "=1",
             "LayoutMinWidth": "=64",
-        }))),
+        })),
     ],
     variant="AutoLayout",
 )
@@ -299,7 +299,7 @@ PLATFORM_ROW = ctrl(
     }, 32),
     [
         # Guesses the platform from the link, so most entries need no dropdown change.
-        ctrl("drpPlatform", V["dropdown"], square(field_style({
+        ctrl("drpPlatform", V["dropdown"], field_style({
             "Items": "=Choices(Assignments.Platform)",
             "Default": f('''
 With({ l: Lower(txtLink.Text) },
@@ -313,7 +313,7 @@ With({ l: Lower(txtLink.Text) },
             "SelectionFill": "=ikbFill",
             "SelectionColor": "=RGBA(255, 255, 255, 1)",
             "FillPortions": "=1",
-        }))),
+        })),
         ctrl("btnAdd", V["button"], square({
             "Text": '="Add ticket"',
             "OnSelect": f(ADD_ON_SELECT),
