@@ -130,18 +130,31 @@ def panel_head(name, text):
 
 # ── Header ──────────────────────────────────────────────────────────────────
 
-# The Tick flow writes LastTick as local "yyyy-MM-ddTHH:mm:ss". It's parsed by position rather
-# than DateTimeValue, which depends on the app's locale (a day-first locale misreads it). If
-# the value is there but unreadable, the raw text is shown rather than "never".
+# LastTick is local time, and has been seen both as "yyyy-MM-ddTHH:mm:ss" (the spec) and as
+# "MM/dd/yyyy HH:mm:ss" (what the flow actually writes). DateTimeValue can't be trusted with
+# either, because it follows the app's locale and a day-first locale misreads "09/24". So take
+# the numbers in order and decide by the first one: four digits means year-first (ISO),
+# otherwise month-first (US). AM/PM is honoured if present. If it still can't be read, the raw
+# text is shown rather than "never".
 HEADER = html("htmHeader", '''
 With(
     { raw: Trim(LookUp(Runtime, Title = "LastTick").Value) },
     With(
-        { t: If(IsMatch(raw, "\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}.*"),
-                DateTime(Value(Left(raw, 4)), Value(Mid(raw, 6, 2)), Value(Mid(raw, 9, 2)),
-                         Value(Mid(raw, 12, 2)), Value(Mid(raw, 15, 2)),
-                         If(Len(raw) >= 19, Value(Mid(raw, 18, 2)), 0)),
-                Blank()) },
+        { n: MatchAll(raw, "\\d+") },
+        With(
+        { t: If(CountRows(n) < 5, Blank(),
+                With(
+                    { first: Index(n, 1).FullMatch,
+                      a: Value(Index(n, 1).FullMatch), b: Value(Index(n, 2).FullMatch), c: Value(Index(n, 3).FullMatch),
+                      h: Value(Index(n, 4).FullMatch), mi: Value(Index(n, 5).FullMatch),
+                      s: If(CountRows(n) >= 6, Value(Index(n, 6).FullMatch), 0) },
+                    With(
+                        { hh: h + If("PM" in Upper(raw) && h < 12, 12, "AM" in Upper(raw) && h = 12, -12, 0) },
+                        IfError(
+                            If(Len(first) = 4, DateTime(a, b, c, hh, mi, s), DateTime(c, a, b, hh, mi, s)),
+                            Blank())
+                    )
+                )) },
         With(
             { mins: If(IsBlank(t), Blank(), DateDiff(t, Now(), TimeUnit.Minutes)) },
             "<div style='font-family:Arial;padding:9px 2px 8px;border-bottom:2px solid #555;'>" &
@@ -156,6 +169,7 @@ With(
                    Text(t, "ddd m/d h:mm AM/PM")) &
                 If(mins > 45, ", flow may be off", "") &
             "</span></div>"
+        )
         )
     )
 )

@@ -14,12 +14,21 @@ export function localStamp(d: Date): string {
   return `${localIsoDate(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
 }
 
-/** Parse a LastTick value (local, no offset) back into a Date. */
+/**
+ * Parse a LastTick value (local, no offset) back into a Date. Seen both as
+ * "2026-09-24T21:19:02" and as "09/24/2026 21:19:02", so the numbers are taken in order and a
+ * four-digit first number means year-first, otherwise month-first. AM/PM is honoured.
+ */
 export function parseLocalStamp(s: string): Date | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/.exec(s.trim())
-  if (!m) return null
-  const [, y, mo, d, h, mi, se] = m
-  return new Date(+y, +mo - 1, +d, +h, +mi, se ? +se : 0)
+  const n = s.match(/\d+/g)
+  if (!n || n.length < 5) return null
+  const [a, b, c, h, mi, se = '0'] = n
+  const [y, mo, d] = a.length === 4 ? [a, b, c] : [c, a, b]
+  let hour = +h
+  if (/pm/i.test(s) && hour < 12) hour += 12
+  if (/am/i.test(s) && hour === 12) hour = 0
+  const date = new Date(+y, +mo - 1, +d, hour, +mi, +se)
+  return Number.isNaN(date.getTime()) ? null : date
 }
 
 export function timeLabel(d: Date): string {
