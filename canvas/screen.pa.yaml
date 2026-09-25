@@ -21,7 +21,7 @@
         Properties:
           HtmlText: |-
             =With(
-                { t: IfError(DateTimeValue(gTick), Blank()) },
+                { t: IfError(DateTimeValue(LookUp(Runtime, Title = "LastTick").Value), Blank()) },
                 With(
                     { mins: If(IsBlank(t), -1, DateDiff(t, Now(), TimeUnit.Minutes)) },
                     "<div style='font-family:Arial;padding:9px 2px 8px;border-bottom:2px solid #555;'>" &
@@ -52,7 +52,7 @@
     - htmCheckInHead:
         Control: HtmlViewer@2.1.0
         Properties:
-          HtmlText: ="<div style='background:#3c5070;color:#ffffff;font-family:Arial;font-weight:bold;font-size:12px;padding:5px 10px;'>" & "Check-in · " & Text(gToday, "dddd m/d") & "</div>"
+          HtmlText: ="<div style='background:#3c5070;color:#ffffff;font-family:Arial;font-weight:bold;font-size:12px;padding:5px 10px;'>" & "Check-in · " & Text(Today(), "dddd m/d") & "</div>"
           AutoHeight: =false
           Font: =Font.Arial
           Size: =10
@@ -86,7 +86,13 @@
             Properties:
               Text: =If(gCheckIn.PL, "✓  PrairieLearn", "PrairieLearn")
               OnSelect: |-
-                =Set(gCheckIn, Patch(CheckIns, gCheckIn, { PL: !gCheckIn.PL }));
+                =If(IsBlank(gCheckIn) || gCheckIn.Title <> Text(Today(), "yyyy-mm-dd"),
+                    Set(gCheckIn, LookUp(CheckIns, Title = Text(Today(), "yyyy-mm-dd")));
+                    If(IsBlank(gCheckIn),
+                        Set(gCheckIn, Patch(CheckIns, Defaults(CheckIns),
+                            { Title: Text(Today(), "yyyy-mm-dd"), CheckDate: Today(), PL: false, CS: false, CV: false, SP: false })))
+                );
+                Set(gCheckIn, Patch(CheckIns, gCheckIn, { PL: !gCheckIn.PL }));
                 If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
                     Set(gCheckIn, Patch(CheckIns, gCheckIn, { CompletedAt: Now() }));
                     Notify("Check-in done: nags off until tomorrow", NotificationType.Success)
@@ -117,7 +123,13 @@
             Properties:
               Text: =If(gCheckIn.CS, "✓  CS173.tech", "CS173.tech")
               OnSelect: |-
-                =Set(gCheckIn, Patch(CheckIns, gCheckIn, { CS: !gCheckIn.CS }));
+                =If(IsBlank(gCheckIn) || gCheckIn.Title <> Text(Today(), "yyyy-mm-dd"),
+                    Set(gCheckIn, LookUp(CheckIns, Title = Text(Today(), "yyyy-mm-dd")));
+                    If(IsBlank(gCheckIn),
+                        Set(gCheckIn, Patch(CheckIns, Defaults(CheckIns),
+                            { Title: Text(Today(), "yyyy-mm-dd"), CheckDate: Today(), PL: false, CS: false, CV: false, SP: false })))
+                );
+                Set(gCheckIn, Patch(CheckIns, gCheckIn, { CS: !gCheckIn.CS }));
                 If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
                     Set(gCheckIn, Patch(CheckIns, gCheckIn, { CompletedAt: Now() }));
                     Notify("Check-in done: nags off until tomorrow", NotificationType.Success)
@@ -148,7 +160,13 @@
             Properties:
               Text: =If(gCheckIn.CV, "✓  Canvas", "Canvas")
               OnSelect: |-
-                =Set(gCheckIn, Patch(CheckIns, gCheckIn, { CV: !gCheckIn.CV }));
+                =If(IsBlank(gCheckIn) || gCheckIn.Title <> Text(Today(), "yyyy-mm-dd"),
+                    Set(gCheckIn, LookUp(CheckIns, Title = Text(Today(), "yyyy-mm-dd")));
+                    If(IsBlank(gCheckIn),
+                        Set(gCheckIn, Patch(CheckIns, Defaults(CheckIns),
+                            { Title: Text(Today(), "yyyy-mm-dd"), CheckDate: Today(), PL: false, CS: false, CV: false, SP: false })))
+                );
+                Set(gCheckIn, Patch(CheckIns, gCheckIn, { CV: !gCheckIn.CV }));
                 If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
                     Set(gCheckIn, Patch(CheckIns, gCheckIn, { CompletedAt: Now() }));
                     Notify("Check-in done: nags off until tomorrow", NotificationType.Success)
@@ -179,7 +197,13 @@
             Properties:
               Text: =If(gCheckIn.SP, "✓  SmartPhysics", "SmartPhysics")
               OnSelect: |-
-                =Set(gCheckIn, Patch(CheckIns, gCheckIn, { SP: !gCheckIn.SP }));
+                =If(IsBlank(gCheckIn) || gCheckIn.Title <> Text(Today(), "yyyy-mm-dd"),
+                    Set(gCheckIn, LookUp(CheckIns, Title = Text(Today(), "yyyy-mm-dd")));
+                    If(IsBlank(gCheckIn),
+                        Set(gCheckIn, Patch(CheckIns, Defaults(CheckIns),
+                            { Title: Text(Today(), "yyyy-mm-dd"), CheckDate: Today(), PL: false, CS: false, CV: false, SP: false })))
+                );
+                Set(gCheckIn, Patch(CheckIns, gCheckIn, { SP: !gCheckIn.SP }));
                 If(gCheckIn.PL && gCheckIn.CS && gCheckIn.CV && gCheckIn.SP && IsBlank(gCheckIn.CompletedAt),
                     Set(gCheckIn, Patch(CheckIns, gCheckIn, { CompletedAt: Now() }));
                     Notify("Check-in done: nags off until tomorrow", NotificationType.Success)
@@ -459,7 +483,7 @@
         Variant: Vertical
         Properties:
           Items: =SortByColumns(Filter(Assignments, Status.Value = "To Do"), "DueAt", SortOrder.Ascending)
-          TemplateSize: =62
+          TemplateSize: =70
           TemplatePadding: =0
           ShowScrollbar: =false
           Fill: =RGBA(0, 0, 0, 0)
@@ -467,7 +491,7 @@
           AlignInContainer: =AlignInContainer.Center
           FillPortions: =0
           Width: =Min(760, Parent.Width - 24)
-          Height: =Max(1, CountRows(Self.AllItems)) * 62
+          Height: =Max(1, CountRows(Self.AllItems)) * 70
         Children:
         - htmTicket:
             Control: HtmlViewer@2.1.0
@@ -477,11 +501,11 @@
                     { h: DateDiff(Now(), ThisItem.DueAt, TimeUnit.Hours),
                       title: Substitute(Substitute(ThisItem.Title, "&", "&amp;"), "<", "&lt;") },
                     "<div style='font-family:Arial;background:#2a2a2a;border:1px solid #444444;border-left:3px solid " &
-                        If(h < 0, "#e08080", h < 24, "#e0a060", "#444444") & ";padding:6px 9px;height:40px;overflow:hidden;'>" &
-                    "<div style='white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>" &
+                        If(h < 0, "#e08080", h < 24, "#e0a060", "#444444") & ";padding:6px 9px;'>" &
+                    "<div style='white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:18px;'>" &
                         "<span style='color:#777777;font-size:11px;'>HW-" & ThisItem.ID & "</span>&nbsp; " &
                         "<b style='color:#e0e0e0;font-size:13px;'>" & title & "</b></div>" &
-                    "<div style='font-size:12px;margin-top:2px;'>" &
+                    "<div style='font-size:12px;line-height:16px;margin-top:2px;white-space:nowrap;overflow:hidden;'>" &
                         "<span style='color:" & If(h < 24, "#e08080", "#999999") & If(h < 0, ";font-weight:bold", "") & ";'>" &
                         If(h < 0, "overdue · was " & Text(ThisItem.DueAt, "ddd m/d h:mm AM/PM"),
                            h < 24, "due in " & h & "h · " & Text(ThisItem.DueAt, "h:mm AM/PM"),
@@ -493,7 +517,7 @@
               X: =0
               Y: =4
               Width: =Parent.TemplateWidth - 148
-              Height: =56
+              Height: =64
               PaddingTop: =0
               PaddingBottom: =0
               PaddingLeft: =0
@@ -525,7 +549,7 @@
               RadiusBottomRight: =0
               Visible: =!IsBlank(ThisItem.Link)
               X: =Parent.TemplateWidth - 142
-              Y: =16
+              Y: =20
               Width: =68
               Height: =32
         - btnDone:
@@ -552,7 +576,7 @@
               RadiusBottomLeft: =0
               RadiusBottomRight: =0
               X: =Parent.TemplateWidth - 68
-              Y: =16
+              Y: =20
               Width: =68
               Height: =32
     - htmEmpty:

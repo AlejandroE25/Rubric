@@ -132,7 +132,7 @@ def panel_head(name, text):
 
 HEADER = html("htmHeader", '''
 With(
-    { t: IfError(DateTimeValue(gTick), Blank()) },
+    { t: IfError(DateTimeValue(LookUp(Runtime, Title = "LastTick").Value), Blank()) },
     With(
         { mins: If(IsBlank(t), -1, DateDiff(t, Now(), TimeUnit.Minutes)) },
         "<div style='font-family:Arial;padding:9px 2px 8px;border-bottom:2px solid #555;'>" &
@@ -154,12 +154,21 @@ With(
 
 ALL_TICKED = " && ".join(f"gCheckIn.{k}" for k, _ in SITES)
 
+# Load (or create) today's CheckIns row. Same as screen-onvisible.fx, repeated in each button
+# so a tap still works when OnVisible hasn't run (Studio only fires it on navigation).
+ENSURE_CHECKIN = f"""If(IsBlank(gCheckIn) || gCheckIn.Title <> Text(Today(), "yyyy-mm-dd"),
+    Set(gCheckIn, LookUp(CheckIns, Title = Text(Today(), "yyyy-mm-dd")));
+    If(IsBlank(gCheckIn),
+        Set(gCheckIn, Patch(CheckIns, Defaults(CheckIns),
+            {{ Title: Text(Today(), "yyyy-mm-dd"), CheckDate: Today(), {", ".join(f"{k}: false" for k, _ in SITES)} }})))
+);"""
+
 
 def site_button(key, label):
     on = f"gCheckIn.{key}"
     props = square({
         "Text": f(f'If({on}, "✓  {label}", "{label}")'),
-        "OnSelect": f(f'''
+        "OnSelect": f(ENSURE_CHECKIN + f'''
 Set(gCheckIn, Patch(CheckIns, gCheckIn, {{ {key}: !{on} }}));
 If({ALL_TICKED} && IsBlank(gCheckIn.CompletedAt),
     Set(gCheckIn, Patch(CheckIns, gCheckIn, {{ CompletedAt: Now() }}));
@@ -345,11 +354,11 @@ With(
     { h: DateDiff(Now(), ThisItem.DueAt, TimeUnit.Hours),
       title: Substitute(Substitute(ThisItem.Title, "&", "&amp;"), "<", "&lt;") },
     "<div style='font-family:Arial;background:#2a2a2a;border:1px solid #444444;border-left:3px solid " &
-        If(h < 0, "#e08080", h < 24, "#e0a060", "#444444") & ";padding:6px 9px;height:40px;overflow:hidden;'>" &
-    "<div style='white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>" &
+        If(h < 0, "#e08080", h < 24, "#e0a060", "#444444") & ";padding:6px 9px;'>" &
+    "<div style='white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:18px;'>" &
         "<span style='color:#777777;font-size:11px;'>HW-" & ThisItem.ID & "</span>&nbsp; " &
         "<b style='color:#e0e0e0;font-size:13px;'>" & title & "</b></div>" &
-    "<div style='font-size:12px;margin-top:2px;'>" &
+    "<div style='font-size:12px;line-height:16px;margin-top:2px;white-space:nowrap;overflow:hidden;'>" &
         "<span style='color:" & If(h < 24, "#e08080", "#999999") & If(h < 0, ";font-weight:bold", "") & ";'>" &
         If(h < 0, "overdue · was " & Text(ThisItem.DueAt, "ddd m/d h:mm AM/PM"),
            h < 24, "due in " & h & "h · " & Text(ThisItem.DueAt, "h:mm AM/PM"),
@@ -364,12 +373,12 @@ GALLERY = ctrl(
     V["gallery"],
     in_column({
         "Items": '=SortByColumns(Filter(Assignments, Status.Value = "To Do"), "DueAt", SortOrder.Ascending)',
-        "TemplateSize": "=62",
+        "TemplateSize": "=70",
         "TemplatePadding": "=0",
         "ShowScrollbar": "=false",
         "Fill": "=RGBA(0, 0, 0, 0)",
         "BorderThickness": "=0",
-    }, "=Max(1, CountRows(Self.AllItems)) * 62"),
+    }, "=Max(1, CountRows(Self.AllItems)) * 70"),
     [
         ctrl("htmTicket", V["html"], {
             "HtmlText": f(TICKET_HTML),
@@ -377,7 +386,7 @@ GALLERY = ctrl(
             "X": "=0",
             "Y": "=4",
             "Width": "=Parent.TemplateWidth - 148",
-            "Height": "=56",
+            "Height": "=64",
             "PaddingTop": "=0",
             "PaddingBottom": "=0",
             "PaddingLeft": "=0",
@@ -388,13 +397,13 @@ GALLERY = ctrl(
         ghost_button("btnOpen", '"Open ↗"', "Launch(ThisItem.Link)", {
             "Visible": "=!IsBlank(ThisItem.Link)",
             "X": "=Parent.TemplateWidth - 142",
-            "Y": "=16",
+            "Y": "=20",
             "Width": "=68",
             "Height": "=32",
         }),
         ghost_button("btnDone", '"Done"', 'Patch(Assignments, ThisItem, { Status: { Value: "Done" }, CompletedAt: Now() })', {
             "X": "=Parent.TemplateWidth - 68",
-            "Y": "=16",
+            "Y": "=20",
             "Width": "=68",
             "Height": "=32",
             "HoverFill": "=ikbGreenFill",
@@ -430,7 +439,7 @@ ROOT = ctrl(
     },
     [
         HEADER,
-        panel_head("htmCheckInHead", '"Check-in · " & Text(gToday, "dddd m/d")'),
+        panel_head("htmCheckInHead", '"Check-in · " & Text(Today(), "dddd m/d")'),
         SITES_ROW,
         CHECKIN_STATUS,
         panel_head("htmLogHead", '"Log an assignment"'),
